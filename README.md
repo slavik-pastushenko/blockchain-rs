@@ -4,14 +4,14 @@ A Rust crate provides an interface for interacting with a blockchain.
 
 ## Reference implementation
 
-[![test](https://github.com/slavik-pastushenko/blockchain-rust/actions/workflows/test.yml/badge.svg)](https://github.com/slavik-pastushenko/blockchain-rust/actions/workflows/test.yml)
-[![release](https://github.com/slavik-pastushenko/blockchain-rust/actions/workflows/release.yml/badge.svg?event=workflow_dispatch)](https://github.com/slavik-pastushenko/blockchain-rust/actions/workflows/release.yml)
+[![test](https://github.com/slavik-pastushenko/blockchain-rs/actions/workflows/test.yml/badge.svg)](https://github.com/slavik-pastushenko/blockchain-rs/actions/workflows/test.yml)
+[![release](https://github.com/slavik-pastushenko/blockchain-rs/actions/workflows/release.yml/badge.svg?event=workflow_dispatch)](https://github.com/slavik-pastushenko/blockchain-rs/actions/workflows/release.yml)
 [![docs](https://docs.rs/blockchain-cli/badge.svg)](https://docs.rs/blockchain-cli)
 [![crate](https://img.shields.io/crates/v/blockchain-cli.svg)](https://crates.io/crates/blockchain-cli)
 ![downloads](https://img.shields.io/crates/d/blockchain-cli)
-[![codecov](https://codecov.io/gh/slavik-pastushenko/blockchain-rust/graph/badge.svg?token=9EL0F6725A)](https://codecov.io/gh/slavik-pastushenko/blockchain-rust)
+[![codecov](https://codecov.io/gh/slavik-pastushenko/blockchain-rs/graph/badge.svg?token=9EL0F6725A)](https://codecov.io/gh/slavik-pastushenko/blockchain-rs)
 
-![Features](https://github.com/slavik-pastushenko/blockchain-rust/assets/16807375/28123ed1-aa79-40d7-a59a-3a0710acc381)
+![Features](https://github.com/slavik-pastushenko/blockchain-rs/assets/16807375/28123ed1-aa79-40d7-a59a-3a0710acc381)
 
 ## Features
 
@@ -48,14 +48,14 @@ This crate uses `#![forbid(unsafe_code)]` to ensure everything is implemented in
 
 For more in-depth details, please refer to the full [documentation](https://docs.rs/blockchain-cli).
 
-If you encounter any issues or have questions that are not addressed in the documentation, feel free to [submit an issue](https://github.com/slavik-pastushenko/blockchain-rust/issues).
+If you encounter any issues or have questions that are not addressed in the documentation, feel free to [submit an issue](https://github.com/slavik-pastushenko/blockchain-rs/issues).
 
 ## Examples
 
 Explore the capabilities of this blockchain implementation through a set of examples:
 
-- CLI for interacting with the blockchain: [see more](https://github.com/slavik-pastushenko/blockchain-rust/tree/main/examples/cli)
-- API for interacting with the blockchain using axum: [see more](https://github.com/slavik-pastushenko/blockchain-rust/tree/main/examples/api-axum)
+- CLI for interacting with the blockchain: [see more](https://github.com/slavik-pastushenko/blockchain-rs/tree/main/examples/cli)
+- API for interacting with the blockchain using axum: [see more](https://github.com/slavik-pastushenko/blockchain-rs/tree/main/examples/api-axum)
 
 ## Usage
 
@@ -116,7 +116,7 @@ cargo run
 Run [clippy](https://github.com/rust-lang/rust-clippy):
 
 ```bash
-cargo clippy --all-targets --all-features -- -D warnings
+cargo clippy --all-targets --all-features --no-deps -- -D warnings
 ```
 
 Run [lint](https://github.com/rust-lang/rustfmt):

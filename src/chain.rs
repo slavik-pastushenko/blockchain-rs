@@ -6,7 +6,7 @@ use sha2::{Digest, Sha256};
 
 use crate::{Block, Transaction, Wallet};
 
-/// A blockchain.
+/// Blockchain.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Chain {
     /// Chain of blocks.
@@ -40,7 +40,7 @@ impl Chain {
     /// - `fee`: The transaction fee.
     ///
     /// # Returns
-    /// A new `Chain` instance with the given parameters and a genesis block.
+    /// New `Chain` instance with the given parameters and a genesis block.
     pub fn new(difficulty: f64, reward: f64, fee: f64) -> Self {
         let mut chain = Chain {
             fee,

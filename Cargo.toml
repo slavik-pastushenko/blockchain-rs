@@ -1,6 +1,6 @@
 [package]
 name = "blockchain-cli"
-description = "A Rust crate provides an interface for interacting with a blockchain"
+description = "A Rust crate provides an interface for interacting with a blockchain."
 version = "1.0.25"
 edition = "2021"
 license = "MIT"
@@ -10,7 +10,7 @@ keywords = ["cli", "crypto", "blockchain"]
 exclude = [".github/**", "examples/**"]
 categories = ["command-line-utilities", "cryptography"]
 documentation = "https://docs.rs/blockchain-cli"
-repository = "https://github.com/slavik-pastushenko/blockchain-rust"
+repository = "https://github.com/slavik-pastushenko/blockchain-rs"
 
 [lib]
 name = "blockchain"
@@ -19,6 +19,6 @@ path = "src/lib.rs"
 [dependencies]
 chrono = "0.4.38"
 rand = "0.8.5"
-serde = { version = "1.0.204", features = ["derive"] }
-serde_json = "1.0.121"
+serde = { version = "1.0.210", features = ["derive"] }
+serde_json = "1.0.132"
 sha2 = "0.10.8"

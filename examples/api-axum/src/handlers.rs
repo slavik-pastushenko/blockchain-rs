@@ -71,8 +71,8 @@ pub struct GetTransactionsInput {
 ///
 /// # Arguments
 ///
-/// - `state` - The application state.
-/// - `body` - The request body.
+/// - `state`: The application state.
+/// - `body`: The request body.
 ///
 /// # Returns
 ///
@@ -91,8 +91,8 @@ pub async fn create_wallet(
 ///
 /// # Arguments
 ///
-/// - `state` - The application state.
-/// - `params` - The request query parameters.
+/// - `state`: The application state.
+/// - `params`: The request query parameters.
 ///
 /// # Returns
 ///
@@ -117,8 +117,8 @@ pub async fn get_wallet_balance(
 ///
 /// # Arguments
 ///
-/// - `state` - The application state.
-/// - `params` - The request query parameters.
+/// - `state`: The application state.
+/// - `params`: The request query parameters.
 ///
 /// # Returns
 ///
@@ -143,8 +143,8 @@ pub async fn get_wallet_transactions(
 ///
 /// # Arguments
 ///
-/// - `state` - The application state.
-/// - `params` - The request query parameters.
+/// - `state`: The application state.
+/// - `params`: The request query parameters.
 ///
 /// # Returns
 ///
@@ -163,8 +163,8 @@ pub async fn get_transactions(
 ///
 /// # Arguments
 ///
-/// - `state` - The application state.
-/// - `hash` - The transaction hash.
+/// - `state`: The application state.
+/// - `hash`: The transaction hash.
 ///
 /// # Returns
 ///
@@ -189,8 +189,8 @@ pub async fn get_transaction(
 ///
 /// # Arguments
 ///
-/// - `state` - The application state.
-/// - `body` - The request body.
+/// - `state`: The application state.
+/// - `body`: The request body.
 ///
 /// # Returns
 ///
