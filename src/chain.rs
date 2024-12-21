@@ -3,6 +3,7 @@ use std::{collections::HashMap, fmt::Write, iter};
 use rand::Rng;
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
+use twox_hash::xxhash64::RandomState;
 
 use crate::{Block, Transaction, Wallet};
 
@@ -27,8 +28,8 @@ pub struct Chain {
     /// Transaction fee.
     pub fee: f64,
 
-    /// A map to associate wallets with their corresponding addresses and balances.
-    pub wallets: HashMap<String, Wallet>,
+    /// Map to associate wallets with their corresponding addresses and balances.
+    pub wallets: HashMap<String, Wallet, RandomState>,
 }
 
 impl Chain {
@@ -46,9 +47,9 @@ impl Chain {
             fee,
             reward,
             difficulty,
-            chain: Vec::new(),
-            wallets: HashMap::new(),
-            current_transactions: Vec::new(),
+            chain: vec![],
+            wallets: HashMap::default(),
+            current_transactions: vec![],
             address: Chain::generate_address(42),
         };
 
@@ -67,7 +68,7 @@ impl Chain {
     /// A reference to a vector containing the current transactions for the specified page.
     pub fn get_transactions(&self, page: usize, size: usize) -> Vec<Transaction> {
         // Calculate the total number of pages
-        let total_pages = (self.current_transactions.len() + size - 1) / size;
+        let total_pages = self.current_transactions.len().div_ceil(size);
 
         // Return an empty vector if the page is greater than the total number of pages
         if page > total_pages {
@@ -238,7 +239,7 @@ impl Chain {
                 let mut result = Vec::new();
 
                 // Calculate the total number of pages
-                let total_pages = (self.current_transactions.len() + size - 1) / size;
+                let total_pages = self.current_transactions.len().div_ceil(size);
 
                 // Return an empty vector if the page is greater than the total number of pages
                 if page > total_pages {
