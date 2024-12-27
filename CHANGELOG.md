@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.0.29] - 2024-12-27
+
+### 📚 Documentation
+
+- Update rustdoc
+
+### ⚙️ Miscellaneous Tasks
+
+- Remove lock from examples
+
 ## [1.0.28] - 2024-12-27
 
 ### ⚙️ Miscellaneous Tasks
@@ -10,6 +20,7 @@ All notable changes to this project will be documented in this file.
 - Update release.toml
 - Remove - cargo release hook
 - Init CHANGELOG.md
+- Release blockchain-cli version 1.0.28
 
 ## [1.0.27] - 2024-12-21
 
