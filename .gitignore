@@ -1,5 +1,7 @@
 debug/
 target/
+!Cargo.lock
+examples/**/Cargo.lock
 
 **/*.rs.bk
 *.pdb
