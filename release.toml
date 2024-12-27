@@ -1,3 +1,4 @@
+pre-release-commit-message = "{{crate_name}} {{version}}"
 pre-release-hook = [
   "git",
   "cliff",
