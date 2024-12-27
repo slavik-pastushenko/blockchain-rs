@@ -65,7 +65,7 @@ impl Chain {
     /// - `size`: The number of transactions per page.
     ///
     /// # Returns
-    /// A reference to a vector containing the current transactions for the specified page.
+    /// Vector containing the current transactions for the specified page.
     pub fn get_transactions(&self, page: usize, size: usize) -> Vec<Transaction> {
         // Calculate the total number of pages
         let total_pages = self.current_transactions.len().div_ceil(size);
