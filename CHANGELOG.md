@@ -2,13 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
-## [1.0.27] - 2024-12-27
+## [1.0.28] - 2024-12-27
 
 ### ⚙️ Miscellaneous Tasks
 
 - Update CI
 - Update release.toml
 - Remove - cargo release hook
+- Init CHANGELOG.md
 
 ## [1.0.27] - 2024-12-21
 
