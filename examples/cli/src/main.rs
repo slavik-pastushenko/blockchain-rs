@@ -212,12 +212,7 @@ fn main() -> std::io::Result<()> {
                 let confirm = cliclack::confirm("Confirm changing a reward").interact()?;
 
                 if confirm {
-                    let res = chain.update_reward(new_reward.trim().parse().unwrap());
-
-                    match res {
-                        true => println!("✅ Reward was changed successfully"),
-                        false => println!("❌ Cannot change a reward"),
-                    }
+                    chain.update_reward(new_reward.trim().parse().unwrap())
                 }
             }
             "change_difficulty" => {
@@ -234,12 +229,7 @@ fn main() -> std::io::Result<()> {
                 let confirm = cliclack::confirm("Confirm changing a difficulty").interact()?;
 
                 if confirm {
-                    let res = chain.update_difficulty(new_difficulty);
-
-                    match res {
-                        true => println!("✅ Difficulty was changed successfully"),
-                        false => println!("❌ Cannot change a difficulty"),
-                    }
+                    chain.update_difficulty(new_difficulty)
                 }
             }
             "change_fee" => {
@@ -256,12 +246,7 @@ fn main() -> std::io::Result<()> {
                 let confirm = cliclack::confirm("Confirm changing a transaction fee").interact()?;
 
                 if confirm {
-                    let res = chain.update_fee(new_fee.trim().parse().unwrap());
-
-                    match res {
-                        true => println!("✅ Transaction fee was changed successfully"),
-                        false => println!("❌ Cannot change a transaction fee"),
-                    }
+                    chain.update_fee(new_fee.trim().parse().unwrap())
                 }
             }
             "exit" => {

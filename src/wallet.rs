@@ -1,8 +1,12 @@
 use serde::{Deserialize, Serialize};
+use uuid::Uuid;
 
 /// A wallet that holds a balance of a cryptocurrency.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Wallet {
+    /// Unique identifier of the wallet.
+    pub id: Uuid,
+
     /// Unique email address associated with the wallet.
     pub email: String,
 
@@ -13,7 +17,7 @@ pub struct Wallet {
     pub balance: f64,
 
     /// A history of transactions associated with the wallet.
-    pub transactions: Vec<String>,
+    pub transaction_hashes: Vec<String>,
 }
 
 impl Wallet {
@@ -30,10 +34,11 @@ impl Wallet {
     /// A new wallet with the given email, address, and balance.
     pub fn new(email: String, address: String, balance: f64) -> Self {
         Wallet {
+            id: Uuid::new_v4(),
             email,
             address,
             balance,
-            transactions: vec![],
+            transaction_hashes: vec![],
         }
     }
 }
@@ -49,9 +54,10 @@ mod tests {
         let balance = 100.0;
         let wallet = Wallet::new(email.to_owned(), address.to_owned(), balance);
 
+        assert_eq!(wallet.id.get_version(), Some(uuid::Version::Random));
         assert_eq!(wallet.email, email);
         assert_eq!(wallet.address, address);
         assert_eq!(wallet.balance, balance);
-        assert!(wallet.transactions.is_empty());
+        assert!(wallet.transaction_hashes.is_empty());
     }
 }

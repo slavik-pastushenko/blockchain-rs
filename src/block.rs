@@ -1,7 +1,9 @@
+use std::collections::HashMap;
+
 use chrono::Utc;
 use serde::{Deserialize, Serialize};
 
-use crate::{Chain, Transaction};
+use crate::{Chain, ChainTransactions};
 
 /// Identifier of a particular block on an entire blockchain.
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -28,11 +30,8 @@ pub struct Block {
     /// Information about the block and the miner.
     pub header: BlockHeader,
 
-    /// Total amount of transactions.
-    pub count: usize,
-
-    /// An amount of transactions.
-    pub transactions: Vec<Transaction>,
+    /// List of transactions.
+    pub transactions: ChainTransactions,
 }
 
 impl Block {
@@ -56,11 +55,9 @@ impl Block {
             timestamp: Utc::now().timestamp(),
         };
 
-        // Create a new block
         Block {
             header,
-            count: 0,
-            transactions: vec![],
+            transactions: HashMap::default(),
         }
     }
 
@@ -108,7 +105,6 @@ mod tests {
     fn test_new_block() {
         let block = Block::new("0".to_string(), 3.0);
 
-        assert_eq!(block.count, 0);
         assert_eq!(block.transactions.len(), 0);
     }
 }

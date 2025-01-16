@@ -15,7 +15,22 @@ fn test_add_transaction() {
     let result = chain.add_transaction(from, to, 10.0);
 
     assert!(result);
-    assert_eq!(chain.current_transactions.len(), 1);
+    assert_eq!(chain.transactions.len(), 1);
+}
+
+#[test]
+fn test_add_transaction_invalid_balance() {
+    let mut chain = setup();
+
+    let from = chain.create_wallet("s@mail.com".to_string());
+    let to = chain.create_wallet("r@mail.com".to_string());
+
+    let sender = chain.wallets.get_mut(&from).unwrap();
+    sender.balance += 5.0;
+
+    let result = chain.add_transaction(from, to, 100.0);
+
+    assert!(!result);
 }
 
 #[test]
@@ -30,7 +45,7 @@ fn test_add_transaction_validation_failed() {
     let result = chain.add_transaction(from, to, 0.0);
 
     assert!(!result);
-    assert!(chain.current_transactions.is_empty());
+    assert!(chain.transactions.is_empty());
 }
 
 #[test]
@@ -126,7 +141,8 @@ fn test_get_transaction() {
 
     chain.add_transaction(from.clone(), to.clone(), 10.0);
 
-    let transaction = chain.get_transaction(chain.current_transactions[0].hash.clone());
+    let transaction =
+        chain.get_transaction(chain.transactions.values().next().unwrap().hash.clone());
 
     assert!(transaction.is_some());
     assert_eq!(transaction.unwrap().from, from);
@@ -157,8 +173,6 @@ fn test_get_transactions() {
     let transactions = chain.get_transactions(0, 10);
 
     assert_eq!(transactions.len(), 2);
-    assert_eq!(transactions[0].from, from);
-    assert_eq!(transactions[1].from, to);
 }
 
 #[test]
@@ -265,9 +279,8 @@ fn test_get_last_hash() {
 fn test_update_difficulty() {
     let mut chain = setup();
 
-    let result = chain.update_difficulty(4.0);
+    chain.update_difficulty(4.0);
 
-    assert!(result);
     assert_eq!(chain.difficulty, 4.0);
 }
 
@@ -275,9 +288,8 @@ fn test_update_difficulty() {
 fn test_update_reward() {
     let mut chain = setup();
 
-    let result = chain.update_reward(50.0);
+    chain.update_reward(50.0);
 
-    assert!(result);
     assert_eq!(chain.reward, 50.0);
 }
 
@@ -285,9 +297,8 @@ fn test_update_reward() {
 fn test_update_fee() {
     let mut chain = setup();
 
-    let result = chain.update_fee(0.02);
+    chain.update_fee(0.02);
 
-    assert!(result);
     assert_eq!(chain.fee, 0.02);
 }
 

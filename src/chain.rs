@@ -1,11 +1,17 @@
-use std::{collections::HashMap, fmt::Write, iter};
+use std::{collections::HashMap, fmt::Write, hash::BuildHasherDefault, iter};
 
 use rand::Rng;
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
-use twox_hash::xxhash64::RandomState;
+use twox_hash::XxHash64;
 
 use crate::{Block, Transaction, Wallet};
+
+/// A map of transactions.
+pub type ChainTransactions = HashMap<String, Transaction, BuildHasherDefault<XxHash64>>;
+
+/// A map of wallets.
+pub type ChainWallets = HashMap<String, Wallet, BuildHasherDefault<XxHash64>>;
 
 /// Blockchain.
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -14,7 +20,7 @@ pub struct Chain {
     pub chain: Vec<Block>,
 
     /// List of transactions.
-    pub current_transactions: Vec<Transaction>,
+    pub transactions: ChainTransactions,
 
     /// Current difficulty level of the network.
     pub difficulty: f64,
@@ -29,7 +35,7 @@ pub struct Chain {
     pub fee: f64,
 
     /// Map to associate wallets with their corresponding addresses and balances.
-    pub wallets: HashMap<String, Wallet, RandomState>,
+    pub wallets: ChainWallets,
 }
 
 impl Chain {
@@ -49,7 +55,7 @@ impl Chain {
             difficulty,
             chain: vec![],
             wallets: HashMap::default(),
-            current_transactions: vec![],
+            transactions: HashMap::default(),
             address: Chain::generate_address(42),
         };
 
@@ -65,14 +71,15 @@ impl Chain {
     /// - `size`: The number of transactions per page.
     ///
     /// # Returns
-    /// Vector containing the current transactions for the specified page.
-    pub fn get_transactions(&self, page: usize, size: usize) -> Vec<Transaction> {
+    /// A list of transactions for the specified page.
+    pub fn get_transactions(&self, page: usize, size: usize) -> ChainTransactions {
         // Calculate the total number of pages
-        let total_pages = self.current_transactions.len().div_ceil(size);
+        let total_transactions = self.transactions.len();
+        let total_pages = total_transactions.div_ceil(size);
 
         // Return an empty vector if the page is greater than the total number of pages
         if page > total_pages {
-            return Vec::new();
+            return HashMap::default();
         }
 
         // Calculate the start and end indices for the transactions of the current page
@@ -80,10 +87,15 @@ impl Chain {
         let end = start + size;
 
         // Get the transactions for the current page
-        self.current_transactions[start..end.min(self.current_transactions.len())].to_vec()
+        self.transactions
+            .iter()
+            .skip(start)
+            .take(end.min(total_transactions))
+            .map(|(k, v)| (k.to_owned(), v.to_owned()))
+            .collect()
     }
 
-    /// Get a transaction by its hash.
+    /// Get a transaction by its identifier.
     ///
     /// # Arguments
     /// - `hash`: The hash of the transaction to retrieve.
@@ -91,9 +103,7 @@ impl Chain {
     /// # Returns
     /// An option containing a reference to the transaction if found, or `None` if not found.
     pub fn get_transaction(&self, hash: String) -> Option<&Transaction> {
-        self.current_transactions
-            .iter()
-            .find(|&trx| trx.hash == hash)
+        self.transactions.get(&hash)
     }
 
     /// Add a new transaction to the blockchain.
@@ -117,10 +127,15 @@ impl Chain {
         // Update sender's balance
         match self.wallets.get_mut(&from) {
             Some(wallet) => {
+                // Determine the wallet balance is sufficient for the transaction. If not, return false.
+                if wallet.balance < total {
+                    return false;
+                }
+
                 wallet.balance -= total;
 
                 // Add the transaction to the sender's transaction history
-                wallet.transactions.push(transaction.hash.to_owned());
+                wallet.transaction_hashes.push(transaction.hash.to_owned());
             }
             None => return false,
         };
@@ -131,13 +146,14 @@ impl Chain {
                 wallet.balance += amount;
 
                 // Add the transaction to the receiver's transaction history
-                wallet.transactions.push(transaction.hash.to_owned());
+                wallet.transaction_hashes.push(transaction.hash.to_owned());
             }
             None => return false,
         };
 
         // Add the transaction to the current transactions
-        self.current_transactions.push(transaction);
+        self.transactions
+            .insert(transaction.hash.to_owned(), transaction);
 
         true
     }
@@ -229,17 +245,13 @@ impl Chain {
         page: usize,
         size: usize,
     ) -> Option<Vec<Transaction>> {
-        match self
-            .wallets
-            .get(&address)
-            .map(|wallet| wallet.transactions.to_owned())
-        {
+        match self.wallets.get(&address) {
             // Get the transaction history of the wallet
-            Some(txs) => {
-                let mut result = Vec::new();
+            Some(wallet) => {
+                let mut result = vec![];
 
                 // Calculate the total number of pages
-                let total_pages = self.current_transactions.len().div_ceil(size);
+                let total_pages = self.transactions.len().div_ceil(size);
 
                 // Return an empty vector if the page is greater than the total number of pages
                 if page > total_pages {
@@ -249,8 +261,9 @@ impl Chain {
                 // Calculate the start and end indices for the transactions of the current page
                 let start = page.saturating_sub(1) * size;
                 let end = start + size;
+                let hashes = &wallet.transaction_hashes;
 
-                for tx in txs[start..end.min(txs.len())].iter() {
+                for tx in hashes[start..end.min(hashes.len())].iter() {
                     match self.get_transaction(tx.to_string()) {
                         Some(transaction) => result.push(transaction.to_owned()),
                         None => continue,
@@ -271,9 +284,7 @@ impl Chain {
     pub fn get_last_hash(&self) -> String {
         let block = match self.chain.last() {
             Some(block) => block,
-            None => {
-                return String::from_utf8(vec![48; 64]).unwrap();
-            }
+            None => return String::from_utf8(vec![48; 64]).unwrap(),
         };
 
         Chain::hash(&block.header)
@@ -283,39 +294,24 @@ impl Chain {
     ///
     /// # Arguments
     /// - `difficulty`: The new mining difficulty level.
-    ///
-    /// # Returns
-    /// `true` if the difficulty is successfully updated.
-    pub fn update_difficulty(&mut self, difficulty: f64) -> bool {
+    pub fn update_difficulty(&mut self, difficulty: f64) {
         self.difficulty = difficulty;
-
-        true
     }
 
     /// Update the block reward.
     ///
     /// # Arguments
     /// - `reward`: The new block reward value.
-    ///
-    /// # Returns
-    /// `true` if the reward is successfully updated.
-    pub fn update_reward(&mut self, reward: f64) -> bool {
+    pub fn update_reward(&mut self, reward: f64) {
         self.reward = reward;
-
-        true
     }
 
     /// Update the transaction fee.
     ///
     /// # Arguments
     /// - `fee`: The new transaction fee value.
-    ///
-    /// # Returns
-    /// `true` if the transaction fee is successfully updated.
-    pub fn update_fee(&mut self, fee: f64) -> bool {
+    pub fn update_fee(&mut self, fee: f64) {
         self.fee = fee;
-
-        true
     }
 
     /// Generate a new block and append it to the blockchain.
@@ -335,11 +331,11 @@ impl Chain {
         );
 
         // Add the reward transaction to the block
-        block.transactions.push(transaction);
-        block.transactions.append(&mut self.current_transactions);
+        block
+            .transactions
+            .insert(transaction.hash.to_owned(), transaction);
 
         // Update the block count and the Merkle root hash
-        block.count = block.transactions.len();
         block.header.merkle = Chain::get_merkle(block.transactions.clone());
 
         // Perform the proof-of-work process
@@ -358,11 +354,11 @@ impl Chain {
     ///
     /// # Returns
     /// The Merkle root hash as a string.
-    pub fn get_merkle(transactions: Vec<Transaction>) -> String {
-        let mut merkle = Vec::new();
+    pub fn get_merkle(transactions: ChainTransactions) -> String {
+        let mut merkle = vec![];
 
-        for t in &transactions {
-            let hash = Chain::hash(t);
+        for transaction in transactions.values() {
+            let hash = Chain::hash(transaction);
             merkle.push(hash);
         }
 
@@ -414,7 +410,7 @@ impl Chain {
     ///
     /// # Returns
     /// A `String` containing the generated alphanumeric string.
-    fn generate_address(length: usize) -> String {
+    pub fn generate_address(length: usize) -> String {
         let mut rng = rand::thread_rng();
 
         let address: String = iter::repeat(())

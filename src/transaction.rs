@@ -1,18 +1,22 @@
 use chrono::Utc;
 use serde::{Deserialize, Serialize};
+use uuid::Uuid;
 
 use crate::Chain;
 
 /// Exchange of assets between two parties.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Transaction {
+    /// Identifier of the transaction.
+    pub id: Uuid,
+
     /// Transaction hash.
     pub hash: String,
 
-    /// Transaction sender address.
+    /// Transaction sender wallet address.
     pub from: String,
 
-    /// Transaction receiver address.
+    /// Transaction receiver wallet address.
     pub to: String,
 
     /// Transaction fee.
@@ -46,6 +50,7 @@ impl Transaction {
 
         // Create a new transaction
         Transaction {
+            id: Uuid::new_v4(),
             hash,
             from,
             to,
