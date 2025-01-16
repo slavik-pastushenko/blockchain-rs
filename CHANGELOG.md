@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.1.0] - 2025-01-16
+
+### 🚀 Features
+
+- Optimise memory usage
+
 ## [1.0.29] - 2024-12-27
 
 ### 📚 Documentation
@@ -11,6 +17,7 @@ All notable changes to this project will be documented in this file.
 ### ⚙️ Miscellaneous Tasks
 
 - Remove lock from examples
+- Release blockchain-cli version 1.0.29
 
 ## [1.0.28] - 2024-12-27
 
