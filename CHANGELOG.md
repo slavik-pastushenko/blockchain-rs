@@ -2,11 +2,21 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.1.2] - 2025-01-29
+
+### 🚀 Features
+
+- Update examples
+
 ## [1.1.1] - 2025-01-29
 
 ### 🚀 Features
 
 - Chain builder
+
+### ⚙️ Miscellaneous Tasks
+
+- Release blockchain-cli version 1.1.1
 
 ## [1.1.0] - 2025-01-16
 
