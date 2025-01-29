@@ -1,11 +1,12 @@
 use std::{collections::HashMap, fmt::Write, hash::BuildHasherDefault, iter};
 
+use derive_builder::Builder;
 use rand::Rng;
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
 use twox_hash::XxHash64;
 
-use crate::{Block, Transaction, Wallet};
+use crate::{Block, BlockchainError, Transaction, Wallet};
 
 /// A map of transactions.
 pub type ChainTransactions = HashMap<String, Transaction, BuildHasherDefault<XxHash64>>;
@@ -14,7 +15,7 @@ pub type ChainTransactions = HashMap<String, Transaction, BuildHasherDefault<XxH
 pub type ChainWallets = HashMap<String, Wallet, BuildHasherDefault<XxHash64>>;
 
 /// Blockchain.
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Default, Builder, Serialize, Deserialize)]
 pub struct Chain {
     /// Chain of blocks.
     pub chain: Vec<Block>,
@@ -102,8 +103,11 @@ impl Chain {
     ///
     /// # Returns
     /// An option containing a reference to the transaction if found, or `None` if not found.
-    pub fn get_transaction(&self, hash: String) -> Option<&Transaction> {
-        self.transactions.get(&hash)
+    pub fn get_transaction(&self, hash: &str) -> Result<&Transaction, BlockchainError> {
+        match self.transactions.get(hash) {
+            Some(transaction) => Ok(transaction),
+            None => Err(BlockchainError::TransactionNotFound),
+        }
     }
 
     /// Add a new transaction to the blockchain.
@@ -115,13 +119,18 @@ impl Chain {
     ///
     /// # Returns
     /// `true` if the transaction is successfully added to the current transactions.
-    pub fn add_transaction(&mut self, from: String, to: String, amount: f64) -> bool {
+    pub fn add_transaction(
+        &mut self,
+        from: String,
+        to: String,
+        amount: f64,
+    ) -> Result<(), BlockchainError> {
         let total = amount * self.fee;
 
         // Validate the transaction and create a new transaction if it is valid
         let transaction = match self.validate_transaction(&from, &to, total) {
             true => Transaction::new(from.to_owned(), to.to_owned(), self.fee, total),
-            false => return false,
+            false => return Err(BlockchainError::InvalidTransaction),
         };
 
         // Update sender's balance
@@ -129,7 +138,7 @@ impl Chain {
             Some(wallet) => {
                 // Determine the wallet balance is sufficient for the transaction. If not, return false.
                 if wallet.balance < total {
-                    return false;
+                    return Err(BlockchainError::InsufficientFunds);
                 }
 
                 wallet.balance -= total;
@@ -137,7 +146,7 @@ impl Chain {
                 // Add the transaction to the sender's transaction history
                 wallet.transaction_hashes.push(transaction.hash.to_owned());
             }
-            None => return false,
+            None => return Err(BlockchainError::WalletNotFound),
         };
 
         // Update receiver's balance
@@ -148,14 +157,14 @@ impl Chain {
                 // Add the transaction to the receiver's transaction history
                 wallet.transaction_hashes.push(transaction.hash.to_owned());
             }
-            None => return false,
+            None => return Err(BlockchainError::WalletNotFound),
         };
 
         // Add the transaction to the current transactions
         self.transactions
             .insert(transaction.hash.to_owned(), transaction);
 
-        true
+        Ok(())
     }
 
     /// Validate a transaction.
@@ -209,10 +218,9 @@ impl Chain {
     ///
     /// # Returns
     /// The newly created wallet address.
-    pub fn create_wallet(&mut self, email: String) -> String {
+    pub fn create_wallet(&mut self, email: &str) -> String {
         let address = Chain::generate_address(42);
-
-        let wallet = Wallet::new(email, address.to_owned(), 0.0);
+        let wallet = Wallet::new(email, &address);
 
         self.wallets.insert(address.to_string(), wallet);
 
@@ -226,8 +234,8 @@ impl Chain {
     ///
     /// # Returns
     /// The wallet balance.
-    pub fn get_wallet_balance(&self, address: String) -> Option<f64> {
-        self.wallets.get(&address).map(|wallet| wallet.balance)
+    pub fn get_wallet_balance(&self, address: &str) -> Option<f64> {
+        self.wallets.get(address).map(|wallet| wallet.balance)
     }
 
     /// Get a wallet's transaction history based on its address.
@@ -241,11 +249,11 @@ impl Chain {
     /// The wallet transaction history for the specified page.
     pub fn get_wallet_transactions(
         &self,
-        address: String,
+        address: &str,
         page: usize,
         size: usize,
     ) -> Option<Vec<Transaction>> {
-        match self.wallets.get(&address) {
+        match self.wallets.get(address) {
             // Get the transaction history of the wallet
             Some(wallet) => {
                 let mut result = vec![];
@@ -264,9 +272,9 @@ impl Chain {
                 let hashes = &wallet.transaction_hashes;
 
                 for tx in hashes[start..end.min(hashes.len())].iter() {
-                    match self.get_transaction(tx.to_string()) {
-                        Some(transaction) => result.push(transaction.to_owned()),
-                        None => continue,
+                    match self.get_transaction(tx) {
+                        Ok(transaction) => result.push(transaction.to_owned()),
+                        Err(_) => continue,
                     }
                 }
 

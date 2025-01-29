@@ -27,17 +27,16 @@ impl Wallet {
     ///
     /// - `email`: The email address associated with the wallet.
     /// - `address`: The address uniquely identifying the wallet.
-    /// - `balance`: The current balance of the wallet.
     ///
     /// # Returns
     ///
     /// A new wallet with the given email, address, and balance.
-    pub fn new(email: String, address: String, balance: f64) -> Self {
+    pub fn new(email: &str, address: &str) -> Self {
         Wallet {
             id: Uuid::new_v4(),
-            email,
-            address,
-            balance,
+            email: email.to_string(),
+            address: address.to_string(),
+            balance: 0.0,
             transaction_hashes: vec![],
         }
     }
@@ -51,13 +50,12 @@ mod tests {
     fn test_new_wallet() {
         let email = "email".to_string();
         let address = "0x 1234".to_string();
-        let balance = 100.0;
-        let wallet = Wallet::new(email.to_owned(), address.to_owned(), balance);
+        let wallet = Wallet::new(&email, &address);
 
         assert_eq!(wallet.id.get_version(), Some(uuid::Version::Random));
         assert_eq!(wallet.email, email);
         assert_eq!(wallet.address, address);
-        assert_eq!(wallet.balance, balance);
+        assert_eq!(wallet.balance, 0.0);
         assert!(wallet.transaction_hashes.is_empty());
     }
 }

@@ -83,7 +83,7 @@ fn main() -> std::io::Result<()> {
                 let confirm = cliclack::confirm("Confirm creating a wallet").interact()?;
 
                 if confirm {
-                    let address = chain.create_wallet(email);
+                    let address = chain.create_wallet(&email);
 
                     println!("✅ Wallet was created successfully: {}", address)
                 }
@@ -99,7 +99,7 @@ fn main() -> std::io::Result<()> {
                     })
                     .interact()?;
 
-                let balance = chain.get_wallet_balance(address);
+                let balance = chain.get_wallet_balance(&address);
 
                 match balance {
                     Some(balance) => println!("✅ Wallet balance: {}", balance),
@@ -117,7 +117,7 @@ fn main() -> std::io::Result<()> {
                     })
                     .interact()?;
 
-                let transactions = chain.get_wallet_transactions(address, 0, 10);
+                let transactions = chain.get_wallet_transactions(&address, 0, 10);
 
                 match transactions {
                     Some(transactions) => println!("✅ Wallet transactions: {:?}", transactions),
@@ -165,8 +165,8 @@ fn main() -> std::io::Result<()> {
                     );
 
                     match res {
-                        true => println!("✅ Transaction was added successfully"),
-                        false => println!("❌ Cannot add a transaction"),
+                        Ok(()) => println!("✅ Transaction was added successfully"),
+                        Err(_) => println!("❌ Cannot add a transaction"),
                     }
                 }
             }
@@ -181,11 +181,11 @@ fn main() -> std::io::Result<()> {
                     })
                     .interact()?;
 
-                let res = chain.get_transaction(hash);
+                let res = chain.get_transaction(&hash);
 
                 match res {
-                    Some(trx) => println!("📦 {:?}", trx),
-                    None => println!("❌ Transaction was not found"),
+                    Ok(trx) => println!("📦 {:?}", trx),
+                    Err(_) => println!("❌ Transaction was not found"),
                 }
             }
             "get_transactions" => {

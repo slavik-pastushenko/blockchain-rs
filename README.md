@@ -1,6 +1,6 @@
 # Blockchain
 
-A Rust crate provides an interface for interacting with a blockchain.
+An interface for interacting with a blockchain.
 
 ## Reference implementation
 
@@ -12,6 +12,51 @@ A Rust crate provides an interface for interacting with a blockchain.
 [![codecov](https://codecov.io/gh/slavik-pastushenko/blockchain-rs/graph/badge.svg?token=9EL0F6725A)](https://codecov.io/gh/slavik-pastushenko/blockchain-rs)
 
 ![Features](https://github.com/slavik-pastushenko/blockchain-rs/assets/16807375/28123ed1-aa79-40d7-a59a-3a0710acc381)
+
+## Documentation
+
+For more in-depth details, please refer to the full [documentation](https://docs.rs/blockchain-cli).
+
+If you encounter any issues or have questions that are not addressed in the documentation, feel free to [submit an issue](https://github.com/slavik-pastushenko/blockchain-rs/issues).
+
+## Examples
+
+Explore the capabilities of this blockchain implementation through a set of examples:
+
+- CLI for interacting with the blockchain: [see more](https://github.com/slavik-pastushenko/blockchain-rs/tree/main/examples/cli)
+- API for interacting with the blockchain: [see more](https://github.com/slavik-pastushenko/blockchain-rs/tree/main/examples/api-axum)
+
+## Usage
+
+```rust
+use blockchain::{ BlockchainError, ChainBuilder };
+
+fn main() -> Result<(), BlockchainError> {
+    // Initialise a new blockchain
+    let mut chain = match ChainBuilder::default()
+        .difficulty(2.0)
+        .reward(100.0)
+        .fee(0.01)
+        .build()
+    {
+        Ok(chain) => chain,
+        Err(e) => return Err(BlockchainError::InvalidConfiguration),
+    };
+
+    let sender = chain.create_wallet("sender@mail.com");
+    let receiver = chain.create_wallet("receiver@mail.com");
+
+    // Add a transaction
+    chain.add_transaction(sender, receiver, 1.25)?;
+
+    // Get a transaction
+    let transaction = chain.get_transaction("6e8c5dc01145016e5a979683ba7e13bafaf85e765490aa33c0bba1f41cf581ed")?;
+
+    println!("📦 Transaction: {:?}", transaction);
+
+    Ok(())
+}
+```
 
 ## Features
 
@@ -32,98 +77,55 @@ A Rust crate provides an interface for interacting with a blockchain.
 - `proof_of_work(header)`: Perform the proof-of-work process to mine a block.
 - `hash(item)`: Calculate the SHA-256 hash of a serializable item.
 
-## Options
-
-| Option       | Data type    | Description                                                       |
-|--------------|--------------|-------------------------------------------------------------------|
-| `difficulty` | `f64`        | The initial mining difficulty level of the network.               |
-| `reward`     | `f64`        | The initial block reward for miners.                              |
-| `fee`        | `f64`        | The transaction fee.                                              |
-
 ## Safety
 
 This crate uses `#![forbid(unsafe_code)]` to ensure everything is implemented in 100% safe Rust.
 
-## Documentation
-
-For more in-depth details, please refer to the full [documentation](https://docs.rs/blockchain-cli).
-
-If you encounter any issues or have questions that are not addressed in the documentation, feel free to [submit an issue](https://github.com/slavik-pastushenko/blockchain-rs/issues).
-
-## Examples
-
-Explore the capabilities of this blockchain implementation through a set of examples:
-
-- CLI for interacting with the blockchain: [see more](https://github.com/slavik-pastushenko/blockchain-rs/tree/main/examples/cli)
-- API for interacting with the blockchain using axum: [see more](https://github.com/slavik-pastushenko/blockchain-rs/tree/main/examples/api-axum)
-
-## Usage
-
-```rust
-use blockchain::Chain;
-
-fn main() {
-  // Initialise a new blockchain
-  let mut chain = Chain::new(2, 100.0, 0.01);
-
-  // Create a wallet for a sender
-  let sender = chain.create_wallet(String::from("sender@mail.com"));
-  
-  // Create a wallet for a receiver
-  let receiver = chain.create_wallet(String::from("receiver@mail.com"));
-
-  // Add a transaction
-  chain.add_transaction(sender, receiver, 1.25);
-
-  // Get a transaction
-  let transaction = chain.get_transaction(
-    String::from("6e8c5dc01145016e5a979683ba7e13bafaf85e765490aa33c0bba1f41cf581ed")
-  );
-
-  match transaction {
-    Some(trx) => println!("📦 Transaction: {:?}", trx),
-    None => println!("❌ Transaction was not found"),
-  }
-
-  // Get all transactions
-  let transactions = chain.get_transactions();
-  println!("📦 Transactions: {:?}", transactions);
-
-  // Others
-}
-```
-
 ## Contributing
 
-Build the application:
+Contributions from the community are always welcome! Here are some ways you can contribute:
+
+### Reporting Bugs
+
+If you encounter any bugs, please [submit an issue](https://github.com/slavik-pastushenko/blockchain-rs/issues) with detailed information about the problem and steps to reproduce it.
+
+### Feature Requests
+
+If you have ideas for new features, feel free to [submit an issue](https://github.com/slavik-pastushenko/blockchain-rs/issues) with a detailed description of the feature and its potential use cases.
+
+### Build
+
+To build the project, run:
 
 ```bash
 cargo build
 ```
 
-Test the application:
+### Test
+
+To run the tests, use:
 
 ```bash
 cargo test
 ```
 
-Run the application:
+### Lint
 
-```bash
-cargo run
-```
-
-Run [clippy](https://github.com/rust-lang/rust-clippy):
+Run [clippy](https://github.com/rust-lang/rust-clippy) to lint the code:
 
 ```bash
 cargo clippy --all-targets --all-features --no-deps -- -D warnings
 ```
 
-Run [lint](https://github.com/rust-lang/rustfmt):
+### Format
+
+Run [rustfmt](https://github.com/rust-lang/rustfmt) to format the code:
 
 ```bash
 cargo fmt
 ```
+
+### Documentation
 
 Generate documentation in HTML format:
 

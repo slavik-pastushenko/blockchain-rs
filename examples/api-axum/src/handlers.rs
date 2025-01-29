@@ -82,7 +82,7 @@ pub async fn create_wallet(
     Json(body): Json<CreateWalletInput>,
 ) -> impl IntoResponse {
     let mut chain = state.chain.lock().unwrap();
-    let address = chain.create_wallet(body.email);
+    let address = chain.create_wallet(&body.email);
 
     (StatusCode::OK, Json(json!({ "data": address })))
 }
@@ -102,7 +102,7 @@ pub async fn get_wallet_balance(
     Query(params): Query<GetWalletBalanceInput>,
 ) -> impl IntoResponse {
     let chain = state.chain.lock().unwrap();
-    let balance = chain.get_wallet_balance(params.address);
+    let balance = chain.get_wallet_balance(&params.address);
 
     match balance {
         Some(balance) => (StatusCode::OK, Json(json!({ "data": balance }))),
@@ -128,7 +128,7 @@ pub async fn get_wallet_transactions(
     Query(params): Query<GetWalletTransactionInput>,
 ) -> impl IntoResponse {
     let chain = state.chain.lock().unwrap();
-    let transaction = chain.get_wallet_transactions(params.address, params.page, params.size);
+    let transaction = chain.get_wallet_transactions(&params.address, params.page, params.size);
 
     match transaction {
         Some(transaction) => (StatusCode::OK, Json(json!({ "data": transaction }))),
@@ -174,11 +174,11 @@ pub async fn get_transaction(
     Path(hash): Path<String>,
 ) -> impl IntoResponse {
     let chain = state.chain.lock().unwrap();
-    let transaction = chain.get_transaction(hash);
+    let transaction = chain.get_transaction(&hash);
 
     match transaction {
-        Some(transaction) => (StatusCode::OK, Json(json!({ "data": transaction }))),
-        None => (
+        Ok(transaction) => (StatusCode::OK, Json(json!({ "data": transaction }))),
+        Err(_) => (
             StatusCode::NOT_FOUND,
             Json(json!({ "message": "Transaction is not found" })),
         ),
